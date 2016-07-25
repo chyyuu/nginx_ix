@@ -13,10 +13,10 @@
 #include <ngx_core.h>
 
 
+void ngx_slabs_init(const size_t limit, const double factor, const int prealloc);
 void *ngx_alloc(size_t size, ngx_log_t *log);
 void *ngx_calloc(size_t size, ngx_log_t *log);
-
-#define ngx_free          free
+void ngx_free(void *p);
 
 
 /*
@@ -26,7 +26,7 @@ void *ngx_calloc(size_t size, ngx_log_t *log);
  * aligns allocations bigger than page size at the page boundary
  */
 
-#if (NGX_HAVE_POSIX_MEMALIGN || NGX_HAVE_MEMALIGN)
+#if (0 && (NGX_HAVE_POSIX_MEMALIGN || NGX_HAVE_MEMALIGN))
 
 void *ngx_memalign(size_t alignment, size_t size, ngx_log_t *log);
 

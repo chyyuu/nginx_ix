@@ -358,7 +358,7 @@ ngx_log_init(u_char *prefix)
         }
 
         if (plen) {
-            name = malloc(plen + nlen + 2);
+            name = ngx_alloc(plen + nlen + 2, NULL);
             if (name == NULL) {
                 return NULL;
             }

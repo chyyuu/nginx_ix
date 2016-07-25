@@ -199,6 +199,8 @@ main(int argc, char *const *argv)
         return 1;
     }
 
+    ngx_slabs_init(256 * 1024 * 1024, 1.25, 1);
+
     if (ngx_get_options(argc, argv) != NGX_OK) {
         return 1;
     }
