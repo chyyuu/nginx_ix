@@ -21,6 +21,8 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 
+#include <ix.h>
+
 /*******************************************************************************
  * Slab allocator from memcached
  ******************************************************************************/
@@ -148,7 +150,7 @@ void slabs_init(const size_t limit, const double factor, const int prealloc) {
 
     if (prealloc) {
         /* Allocate everything in a big chunk with malloc */
-        mem_base = malloc(mem_limit);
+        mem_base = ix_alloc_pages(div_up(mem_limit, PGSIZE_2MB));
         if (mem_base != NULL) {
             mem_current = mem_base;
             mem_avail = mem_limit;
