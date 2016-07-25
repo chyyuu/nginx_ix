@@ -1,0 +1,4 @@
+cscope.*
+objs/
+installed/
+Makefile
