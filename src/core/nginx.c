@@ -25,6 +25,7 @@ static char *ngx_set_cpu_affinity(ngx_conf_t *cf, ngx_command_t *cmd,
 static char *ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd,
     void *conf);
 static char *ngx_load_module(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+#undef NGX_HAVE_DLOPEN
 #if (NGX_HAVE_DLOPEN)
 static void ngx_unload_module(void *data);
 #endif
@@ -1053,6 +1054,7 @@ ngx_core_module_init_conf(ngx_cycle_t *cycle, void *conf)
 
 #if !(NGX_WIN32)
 
+#if 0
     if (ccf->user == (uid_t) NGX_CONF_UNSET_UINT && geteuid() == 0) {
         struct group   *grp;
         struct passwd  *pwd;
@@ -1078,7 +1080,7 @@ ngx_core_module_init_conf(ngx_cycle_t *cycle, void *conf)
 
         ccf->group = grp->gr_gid;
     }
-
+#endif
 
     if (ccf->lock_file.len == 0) {
         ngx_str_set(&ccf->lock_file, NGX_LOCK_PATH);
@@ -1142,7 +1144,7 @@ ngx_set_user(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     return NGX_CONF_OK;
 
-#else
+#elif 0
 
     ngx_core_conf_t  *ccf = conf;
 
@@ -1191,6 +1193,11 @@ ngx_set_user(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     return NGX_CONF_OK;
 
+#else
+    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
+                       "\"user\" is not supported "
+                       "on this platform");
+    return NGX_CONF_ERROR;
 #endif
 }
 
