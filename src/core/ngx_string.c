@@ -16,6 +16,7 @@ static void ngx_encode_base64_internal(ngx_str_t *dst, ngx_str_t *src,
 static ngx_int_t ngx_decode_base64_internal(ngx_str_t *dst, ngx_str_t *src,
     const u_char *basis);
 
+u_char ngx_prealloc_buf[NGX_PREALLOC_BUF_SIZE];
 
 #undef strcmp
 int strcmp(const char *str1, const char *str2) {

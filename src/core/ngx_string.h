@@ -230,5 +230,8 @@ void ngx_sort(void *base, size_t n, size_t size,
 #define ngx_value_helper(n)   #n
 #define ngx_value(n)          ngx_value_helper(n)
 
+/* A buf in .data to work around ix limitations */
+#define NGX_PREALLOC_BUF_SIZE 256 * 1024 * 1024
+extern u_char ngx_prealloc_buf[NGX_PREALLOC_BUF_SIZE];
 
 #endif /* _NGX_STRING_H_INCLUDED_ */
