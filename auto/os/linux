@@ -50,8 +50,8 @@ ngx_feature_test="int efd = 0;
 
 if [ $ngx_found = yes ]; then
     have=NGX_HAVE_CLEAR_EVENT . auto/have
-    CORE_SRCS="$CORE_SRCS $EPOLL_SRCS"
-    EVENT_MODULES="$EVENT_MODULES $EPOLL_MODULE"
+    CORE_SRCS="$CORE_SRCS $EPOLL_SRCS $IXEV_SRCS"
+    EVENT_MODULES="$EVENT_MODULES $EPOLL_MODULE $IXEV_MODULE"
     EVENT_FOUND=YES
 
 

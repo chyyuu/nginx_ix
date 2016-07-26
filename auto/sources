@@ -118,6 +118,9 @@ EVENTPORT_SRCS=src/event/modules/ngx_eventport_module.c
 EPOLL_MODULE=ngx_epoll_module
 EPOLL_SRCS=src/event/modules/ngx_epoll_module.c
 
+IXEV_MODULE=ngx_ixev_module
+IXEV_SRCS=src/event/modules/ngx_ixev_module.c
+
 IOCP_MODULE=ngx_iocp_module
 IOCP_SRCS=src/event/modules/ngx_iocp_module.c
 

@@ -17,6 +17,7 @@ extern ngx_module_t ngx_kqueue_module;
 extern ngx_module_t ngx_eventport_module;
 extern ngx_module_t ngx_devpoll_module;
 extern ngx_module_t ngx_epoll_module;
+extern ngx_module_t ngx_ixev_module;
 extern ngx_module_t ngx_select_module;
 
 
@@ -1185,9 +1186,6 @@ ngx_event_core_init_conf(ngx_cycle_t *cycle, void *conf)
 {
     ngx_event_conf_t  *ecf = conf;
 
-#if (NGX_HAVE_EPOLL) && !(NGX_TEST_BUILD_EPOLL)
-    int                  fd;
-#endif
     ngx_int_t            i;
     ngx_module_t        *module;
     ngx_event_module_t  *event_module;
@@ -1196,15 +1194,7 @@ ngx_event_core_init_conf(ngx_cycle_t *cycle, void *conf)
 
 #if (NGX_HAVE_EPOLL) && !(NGX_TEST_BUILD_EPOLL)
 
-    fd = epoll_create(100);
-
-    if (fd != -1) {
-        (void) close(fd);
-        module = &ngx_epoll_module;
-
-    } else if (ngx_errno != NGX_ENOSYS) {
-        module = &ngx_epoll_module;
-    }
+    module = &ngx_ixev_module;
 
 #endif
 
