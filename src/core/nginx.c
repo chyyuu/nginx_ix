@@ -182,6 +182,7 @@ static char        *ngx_signal;
 
 
 static char **ngx_os_environ;
+ngx_log_t *default_log = NULL;
 
 
 int ngx_cdecl
@@ -228,6 +229,7 @@ main(int argc, char *const *argv)
     if (log == NULL) {
         return 1;
     }
+    default_log = log;
 
     /* STUB */
 #if (NGX_OPENSSL)

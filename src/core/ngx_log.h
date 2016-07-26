@@ -263,6 +263,7 @@ ngx_write_stdout(char *text)
 
 extern ngx_module_t  ngx_errlog_module;
 extern ngx_uint_t    ngx_use_stderr;
+extern ngx_log_t    *default_log;
 
 
 #endif /* _NGX_LOG_H_INCLUDED_ */

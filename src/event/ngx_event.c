@@ -571,8 +571,12 @@ ngx_event_process_init(ngx_cycle_t *cycle)
 {
     ngx_uint_t           m, i;
     ngx_event_t         *rev, *wev;
+#if 0
     ngx_listening_t     *ls;
     ngx_connection_t    *c, *next, *old;
+#else
+    ngx_connection_t    *c, *next;
+#endif
     ngx_core_conf_t     *ccf;
     ngx_event_conf_t    *ecf;
     ngx_event_module_t  *module;
@@ -731,7 +735,7 @@ ngx_event_process_init(ngx_cycle_t *cycle)
     cycle->free_connection_n = cycle->connection_n;
 
     /* for each listening socket */
-
+#if 0
     ls = cycle->listening.elts;
     for (i = 0; i < cycle->listening.nelts; i++) {
 
@@ -839,7 +843,7 @@ ngx_event_process_init(ngx_cycle_t *cycle)
 #endif
 
     }
-
+#endif
     return NGX_OK;
 }
 

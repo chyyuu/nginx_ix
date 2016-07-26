@@ -66,27 +66,45 @@ ngx_module_t  ngx_ixev_module = {
     NGX_MODULE_V1_PADDING
 };
 
+static void ngx_handler(struct ixev_ctx *ctx, unsigned int reason)
+{
+    ngx_connection_t *c = container_of(ctx, ngx_connection_t, ctx);
+    printf("[ixev] %s not implemented, connection: %p\n", __func__, c);
+}
+
 static struct ixev_ctx *ngx_accept(struct ip_tuple *id)
 {
-    fprintf(stderr, "%s: TODO\n", __func__);
-	return NULL;
+    ngx_connection_t *c;
+
+    c = ngx_get_connection(0, default_log);
+    if (c == NULL) {
+        printf("[ixev] ngx_get_connection failed\n");
+        return NULL;
+    }
+
+    ixev_ctx_init(&c->ctx);
+    ixev_set_handler(&c->ctx, IXEVIN, &ngx_handler);
+    return &c->ctx;
 }
 
 static void ngx_release(struct ixev_ctx *ctx)
 {
-    fprintf(stderr, "%s: TODO\n", __func__);
+    ngx_connection_t *c = container_of(ctx, ngx_connection_t, ctx);
+    ngx_free_connection(c);
 }
 
 struct ixev_conn_ops nginx_ops = {
-    .accept	    = &ngx_accept,
-    .release    = &ngx_release,
+    .accept        = &ngx_accept,
+    .release       = &ngx_release,
 };
 
 static ngx_int_t
 ngx_ixev_init(ngx_cycle_t *cycle, ngx_msec_t timer)
 {
-    if (ixev_init(&nginx_ops))
+    if (ixev_init(&nginx_ops)) {
+        printf("[ixev] init failed\n");
         return NGX_ERROR;
+    }
 
     ixev_init_thread();
 
@@ -139,7 +157,7 @@ ngx_ixev_del_connection(ngx_connection_t *c, ngx_uint_t flags)
 static ngx_int_t
 ngx_ixev_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 {
-    printf("[ixev] %s not implemented\n", __func__);
+    ixev_wait();
     return NGX_ERROR;
 }
 

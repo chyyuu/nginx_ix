@@ -144,7 +144,7 @@ unsigned int slabs_clsid(const size_t size) {
 void slabs_init(const size_t limit, const double factor, const int prealloc) {
     unsigned int i = POWER_SMALLEST - 1;
     unsigned int size = sizeof(item) + 48;  /* 48 is the default chunk size */
-    int item_size_max = 1024 * 1024;  /* 1024 * 1024 is the default 1MB item_size_max */
+    int item_size_max = 3 * 1024 * 1024;
 
     mem_limit = limit;
 

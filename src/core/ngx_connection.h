@@ -12,6 +12,7 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 
+#include <ixev.h>
 
 typedef struct ngx_listening_s  ngx_listening_t;
 
@@ -128,6 +129,7 @@ struct ngx_connection_s {
     ngx_event_t        *write;
 
     ngx_socket_t        fd;
+    struct ixev_ctx     ctx;
 
     ngx_recv_pt         recv;
     ngx_send_pt         send;
