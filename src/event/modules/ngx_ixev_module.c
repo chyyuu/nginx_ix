@@ -12,14 +12,14 @@ typedef struct {
 static ngx_int_t ngx_ixev_init(ngx_cycle_t *cycle, ngx_msec_t timer);
 static void ngx_ixev_done(ngx_cycle_t *cycle);
 static ngx_int_t ngx_ixev_add_event(ngx_event_t *ev, ngx_int_t event,
-    ngx_uint_t flags);
+                                    ngx_uint_t flags);
 static ngx_int_t ngx_ixev_del_event(ngx_event_t *ev, ngx_int_t event,
-    ngx_uint_t flags);
+                                    ngx_uint_t flags);
 static ngx_int_t ngx_ixev_add_connection(ngx_connection_t *c);
 static ngx_int_t ngx_ixev_del_connection(ngx_connection_t *c,
-    ngx_uint_t flags);
+                                         ngx_uint_t flags);
 static ngx_int_t ngx_ixev_process_events(ngx_cycle_t *cycle, ngx_msec_t timer,
-    ngx_uint_t flags);
+                                         ngx_uint_t flags);
 
 static void *ngx_ixev_create_conf(ngx_cycle_t *cycle);
 static char *ngx_ixev_init_conf(ngx_cycle_t *cycle, void *conf);
@@ -66,6 +66,25 @@ ngx_module_t  ngx_ixev_module = {
     NGX_MODULE_V1_PADDING
 };
 
+static ssize_t ngx_ix_recv(ngx_connection_t *c, u_char *buf, size_t size);
+static ssize_t ngx_ix_recv_chain(ngx_connection_t *c, ngx_chain_t *in,
+                                 off_t limit);
+static ssize_t ngx_udp_ix_recv(ngx_connection_t *c, u_char *buf, size_t size);
+static ssize_t ngx_ix_send(ngx_connection_t *c, u_char *buf, size_t size);
+static ssize_t ngx_udp_ix_send(ngx_connection_t *c, u_char *buf, size_t size);
+static ngx_chain_t *ngx_ix_send_chain(ngx_connection_t *c, ngx_chain_t *in,
+                                      off_t limit);
+
+ngx_os_io_t ngx_ix_io = {
+    ngx_ix_recv,
+    ngx_ix_recv_chain,
+    ngx_udp_ix_recv,
+    ngx_ix_send,
+    ngx_udp_ix_send,
+    ngx_ix_send_chain,
+    0
+};
+
 static void ngx_handler(struct ixev_ctx *ctx, unsigned int reason)
 {
     ngx_connection_t *c = container_of(ctx, ngx_connection_t, ctx);
@@ -108,7 +127,7 @@ ngx_ixev_init(ngx_cycle_t *cycle, ngx_msec_t timer)
 
     ixev_init_thread();
 
-    ngx_io = ngx_os_io;
+    ngx_io = ngx_ix_io;
     ngx_event_actions = ngx_ixev_module_ctx.actions;
 
     return NGX_OK;
@@ -184,4 +203,46 @@ ngx_ixev_init_conf(ngx_cycle_t *cycle, void *conf)
     ngx_conf_init_uint_value(epcf->dummy, 0);
 
     return NGX_CONF_OK;
+}
+
+static ssize_t
+ngx_ix_recv(ngx_connection_t *c, u_char *buf, size_t size)
+{
+    printf("[ixev] %s not implemented\n", __func__);
+    return NGX_ERROR;
+}
+
+static ssize_t
+ngx_ix_recv_chain(ngx_connection_t *c, ngx_chain_t *in, off_t limit)
+{
+    printf("[ixev] %s not implemented\n", __func__);
+    return NGX_ERROR;
+}
+
+static ssize_t
+ngx_udp_ix_recv(ngx_connection_t *c, u_char *buf, size_t size)
+{
+    printf("[ixev] %s not implemented\n", __func__);
+    return NGX_ERROR;
+}
+
+static ssize_t
+ngx_ix_send(ngx_connection_t *c, u_char *buf, size_t size)
+{
+    printf("[ixev] %s not implemented\n", __func__);
+    return NGX_ERROR;
+}
+
+static ssize_t
+ngx_udp_ix_send(ngx_connection_t *c, u_char *buf, size_t size)
+{
+    printf("[ixev] %s not implemented\n", __func__);
+    return NGX_ERROR;
+}
+
+static ngx_chain_t *
+ngx_ix_send_chain(ngx_connection_t *c, ngx_chain_t *in, off_t limit)
+{
+    printf("[ixev] %s not implemented\n", __func__);
+    return NGX_CHAIN_ERROR;
 }
