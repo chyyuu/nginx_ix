@@ -606,9 +606,11 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
         }
     }
 
+#if 0
     if (ngx_open_listening_sockets(cycle) != NGX_OK) {
         goto failed;
     }
+#endif
 
     if (!ngx_test_config) {
         ngx_configure_listening_sockets(cycle);
