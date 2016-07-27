@@ -150,7 +150,9 @@ void slabs_init(const size_t limit, const double factor, const int prealloc) {
 
     if (prealloc) {
         /* Allocate everything in a big chunk with malloc */
-        mem_base = ngx_prealloc_buf;
+        /* In IX, this will be handled by umm_mmap which will place the buffer
+         * in a suitable place (i.e. the direct user mapping section). */
+        mem_base = mmap(NULL, limit, PROT_READ | PROT_WRITE, MAP_ANONYMOUS, -1, 0);
         if (mem_base != NULL) {
             mem_current = mem_base;
             mem_avail = mem_limit;
