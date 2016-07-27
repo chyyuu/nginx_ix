@@ -183,7 +183,6 @@ static char        *ngx_signal;
 
 static char **ngx_os_environ;
 ngx_log_t *default_log = NULL;
-ngx_cycle_t *ongoing_cycle = NULL;
 
 
 int ngx_cdecl
@@ -365,8 +364,6 @@ main(int argc, char *const *argv)
     }
 
     ngx_use_stderr = 0;
-
-    ongoing_cycle = cycle;
 
     if (ngx_process == NGX_PROCESS_SINGLE) {
         ngx_single_process_cycle(cycle);

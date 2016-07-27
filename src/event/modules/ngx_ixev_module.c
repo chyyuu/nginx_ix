@@ -223,11 +223,11 @@ ngx_ixev_init(ngx_cycle_t *cycle, ngx_msec_t timer)
         return NGX_ERROR;
     }
 
-    if (ongoing_cycle->listening.nelts != 1) {
-        printf("[ixev] %lu listening sockets are not supported\n", ongoing_cycle->listening.nelts);
+    if (ngx_cycle->listening.nelts != 1) {
+        printf("[ixev] %lu listening sockets are not supported\n", ngx_cycle->listening.nelts);
         return NGX_ERROR;
     }
-    listening_socket = ongoing_cycle->listening.elts;
+    listening_socket = ngx_cycle->listening.elts;
 
     ixev_init_thread();
 
