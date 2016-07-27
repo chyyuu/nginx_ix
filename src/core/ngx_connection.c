@@ -1167,6 +1167,7 @@ ngx_close_connection(ngx_connection_t *c)
         return;
     }
 
+    ixev_close(&c->ctx);
     if (ngx_close_socket(fd) == -1) {
 
         err = ngx_socket_errno;

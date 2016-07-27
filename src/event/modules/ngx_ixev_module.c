@@ -107,19 +107,6 @@ static void ngx_handler(struct ixev_ctx *ctx, unsigned int reason)
     }
 }
 
-static void ngx_release(struct ixev_ctx *ctx)
-{
-    ngx_connection_t *c = container_of(ctx, ngx_connection_t, ctx);
-
-    ngx_del_conn(c, 0);
-
-    if (c->pool)
-        ngx_destroy_pool(c->pool);
-
-    ngx_free_connection(c);
-}
-
-extern ngx_cycle_t *ongoing_cycle;
 static ngx_listening_t *listening_socket = NULL;
 
 static struct ixev_ctx *ngx_accept(struct ip_tuple *id)
@@ -206,8 +193,16 @@ static struct ixev_ctx *ngx_accept(struct ip_tuple *id)
     return &c->ctx;
 
 fail:
-    ngx_release(&c->ctx);
+    if (c->pool)
+        ngx_destroy_pool(c->pool);
+    ixev_close(&c->ctx);
     return NULL;
+}
+
+static void ngx_release(struct ixev_ctx *ctx)
+{
+    /* Nothing to be done here, since the connection should be freed in
+     * ngx_close_connection() normally */
 }
 
 struct ixev_conn_ops nginx_ops = {
@@ -320,8 +315,48 @@ ngx_ixev_init_conf(ngx_cycle_t *cycle, void *conf)
 static ssize_t
 ngx_ix_recv(ngx_connection_t *c, u_char *buf, size_t size)
 {
-    printf("[ixev] %s not implemented\n", __func__);
-    return NGX_ERROR;
+    ssize_t       n;
+    ngx_err_t     err;
+    ngx_event_t  *rev;
+
+    rev = c->read;
+
+    do {
+        n = ixev_recv(&c->ctx, buf, size);
+
+        if (n == 0) {
+            rev->ready = 0;
+            rev->eof = 1;
+
+            return 0;
+        }
+
+        if (n > 0) {
+            if ((size_t) n < size
+                && !(ngx_event_flags & NGX_USE_GREEDY_EVENT)) {
+                rev->ready = 0;
+            }
+
+            return n;
+        }
+
+        err = ngx_socket_errno;
+
+        if (err == NGX_EAGAIN || err == NGX_EINTR) {
+            n = NGX_AGAIN;
+        } else {
+            n = ngx_connection_error(c, err, "recv() failed");
+            break;
+        }
+    } while (err == NGX_EINTR);
+
+    rev->ready = 0;
+
+    if (n == NGX_ERROR) {
+        rev->error = 1;
+    }
+
+    return n;
 }
 
 static ssize_t
@@ -341,8 +376,46 @@ ngx_udp_ix_recv(ngx_connection_t *c, u_char *buf, size_t size)
 static ssize_t
 ngx_ix_send(ngx_connection_t *c, u_char *buf, size_t size)
 {
-    printf("[ixev] %s not implemented\n", __func__);
-    return NGX_ERROR;
+    ssize_t       n;
+    ngx_err_t     err;
+    ngx_event_t  *wev;
+
+    wev = c->write;
+
+    for ( ;; ) {
+        n = ixev_send(&c->ctx, buf, size);
+
+        if (n > 0) {
+            if (n < (ssize_t) size) {
+                wev->ready = 0;
+            }
+
+            c->sent += n;
+
+            return n;
+        }
+
+        err = ngx_socket_errno;
+
+        if (n == 0) {
+            ngx_log_error(NGX_LOG_ALERT, c->log, err, "send() returned zero");
+            wev->ready = 0;
+            return n;
+        }
+
+        if (err == NGX_EAGAIN || err == NGX_EINTR) {
+            wev->ready = 0;
+
+            if (err == NGX_EAGAIN) {
+                return NGX_AGAIN;
+            }
+
+        } else {
+            wev->error = 1;
+            (void) ngx_connection_error(c, err, "send() failed");
+            return NGX_ERROR;
+        }
+    }
 }
 
 static ssize_t
@@ -355,6 +428,47 @@ ngx_udp_ix_send(ngx_connection_t *c, u_char *buf, size_t size)
 static ngx_chain_t *
 ngx_ix_send_chain(ngx_connection_t *c, ngx_chain_t *in, off_t limit)
 {
-    printf("[ixev] %s not implemented\n", __func__);
-    return NGX_CHAIN_ERROR;
+    size_t         size;
+    ssize_t        n, sent;
+    off_t          send, prev_send;
+    ngx_event_t   *wev;
+
+    wev = c->write;
+
+    if (!wev->ready) {
+        return in;
+    }
+
+    if (limit == 0 || limit > (off_t) (NGX_MAX_SIZE_T_VALUE - ngx_pagesize)) {
+        limit = NGX_MAX_SIZE_T_VALUE - ngx_pagesize;
+    }
+
+    send = 0;
+
+    for (;;) {
+        prev_send = send;
+
+        size = in->buf->last - in->buf->pos;
+        send += size;
+
+        n = ngx_ix_send(c, in->buf->pos, size);
+
+        if (n == NGX_ERROR) {
+            return NGX_CHAIN_ERROR;
+        }
+
+        sent = (n == NGX_AGAIN) ? 0 : n;
+        c->sent += sent;
+
+        in = ngx_chain_update_sent(in, sent);
+
+        if (send - prev_send != sent) {
+            wev->ready = 0;
+            return in;
+        }
+
+        if (send >= limit || in == NULL) {
+            return in;
+        }
+    }
 }

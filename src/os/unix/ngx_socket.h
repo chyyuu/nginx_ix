@@ -57,7 +57,7 @@ int ngx_tcp_push(ngx_socket_t s);
 #define ngx_shutdown_socket    shutdown
 #define ngx_shutdown_socket_n  "shutdown()"
 
-#define ngx_close_socket    close
+#define ngx_close_socket(fd)  (fd == fd ? 0 : 0)
 #define ngx_close_socket_n  "close() socket"
 
 
