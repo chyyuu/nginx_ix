@@ -340,7 +340,7 @@ ngx_ix_recv(ngx_connection_t *c, u_char *buf, size_t size)
             return n;
         }
 
-        err = ngx_socket_errno;
+        err = -n;
 
         if (err == NGX_EAGAIN || err == NGX_EINTR) {
             n = NGX_AGAIN;
@@ -395,7 +395,7 @@ ngx_ix_send(ngx_connection_t *c, u_char *buf, size_t size)
             return n;
         }
 
-        err = ngx_socket_errno;
+        err = -n;
 
         if (n == 0) {
             ngx_log_error(NGX_LOG_ALERT, c->log, err, "send() returned zero");
