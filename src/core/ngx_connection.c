@@ -1111,9 +1111,11 @@ ngx_free_connection(ngx_connection_t *c)
 void
 ngx_close_connection(ngx_connection_t *c)
 {
+#if 0
     ngx_err_t     err;
     ngx_uint_t    log_error, level;
     ngx_socket_t  fd;
+#endif
 
     if (c->fd == (ngx_socket_t) -1) {
         ngx_log_error(NGX_LOG_ALERT, c->log, 0, "connection already closed");
@@ -1156,11 +1158,15 @@ ngx_close_connection(ngx_connection_t *c)
 
     ngx_reusable_connection(c, 0);
 
+#if 0
     log_error = c->log_error;
+#endif
 
     ngx_free_connection(c);
 
+#if 0
     fd = c->fd;
+#endif
     c->fd = (ngx_socket_t) -1;
 
     if (c->shared) {
@@ -1168,6 +1174,7 @@ ngx_close_connection(ngx_connection_t *c)
     }
 
     ixev_close(&c->ctx);
+#if 0
     if (ngx_close_socket(fd) == -1) {
 
         err = ngx_socket_errno;
@@ -1197,6 +1204,7 @@ ngx_close_connection(ngx_connection_t *c)
         ngx_log_error(level, ngx_cycle->log, err,
                       ngx_close_socket_n " %d failed", fd);
     }
+#endif
 }
 
 
